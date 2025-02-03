@@ -144,7 +144,7 @@ class GithubRepository(models.Model):
             return gh_api.get_repo(int(obj_id or self.github_id_external))
         except GithubException as e:
             _logger.error(
-                "An error occurred while trying to fetch the repository %s: %s",
+                "An error occurred while trying to fetch the repository ID=%s: %s",
                 self.complete_name,
                 e,
             )
@@ -177,7 +177,12 @@ class GithubRepository(models.Model):
     @api.model
     def cron_update_branch_list(self):
         branches = self.search([])
-        branches.button_sync_branch()
+        for branch in branches  :
+            try :
+                branch.button_sync_branch()
+            except GithubException as e:
+                _logger.error(f"An error occurred while trying to sync the branch ID={branch.id}: {e}")
+
         return True
 
     def button_sync_branch(self):

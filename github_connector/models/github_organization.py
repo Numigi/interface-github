@@ -128,8 +128,12 @@ class GithubOrganization(models.Model):
     @api.model
     def cron_update_organization_team(self):
         organizations = self.search([])
-        organizations.full_update()
-        organizations.mapped("team_ids").full_update()
+        for organization in organizations :
+            try :
+                organization.full_update()
+                organization.mapped("team_ids").full_update()
+            except GithubException as e:
+                _logger.error(f"An error occurred while trying to full_update the organization ID={organization.id}: {e}")
         return True
 
     # Compute Section

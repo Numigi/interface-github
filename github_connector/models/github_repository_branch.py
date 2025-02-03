@@ -10,6 +10,8 @@ import shutil
 from datetime import datetime
 from subprocess import check_output
 
+from github.GithubException import GithubException
+
 from odoo import _, addons, api, exceptions, fields, models, tools
 from odoo.tools.safe_eval import safe_eval
 
@@ -139,7 +141,11 @@ class GithubRepository(models.Model):
     @api.model
     def cron_download_all(self):
         branches = self.search([])
-        branches._download_code()
+        for branch in branches  :
+            try :
+                branch._download_code()
+            except GithubException as e:
+                _logger.error(f"An error occurred while trying to sync the branch ID={branch.id}: {e}")
         return True
 
     @api.model
